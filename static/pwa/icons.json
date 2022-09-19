@@ -1,9 +1,4 @@
 {
-  "name": "Share",
-  "short_name": "Share",
-  "start_url": "/",
-  "theme_color": "#F5DEB3FF",
-  "background_color": "#FFFFFFFF",
   "icons": [
     {
       "src": "/static/pwa/windows11/SmallTile.scale-100.png",
@@ -564,27 +559,5 @@
       "src": "/static/pwa/ios/1024.png",
       "sizes": "1024x1024"
     }
-  ],
-  "share_target": {
-    "action": "/app",
-    "enctype": "multipart/form-data",
-    "method": "POST",
-    "params": {
-      "title": "title",
-      "text": "text",
-      "url": "url",
-      "files": [
-        {
-          "name": "media[]",
-          "accept": [
-            "audio/*",
-            "image/*",
-            "video/*"
-          ]
-        }
-      ]
-    }
-  },
-  "display": "standalone",
-  "scope": "/"
+  ]
 }
