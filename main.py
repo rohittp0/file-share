@@ -8,6 +8,7 @@ from fastapi.responses import RedirectResponse
 from preview_generator.exception import UnsupportedMimeType
 from preview_generator.manager import PreviewManager
 from starlette.requests import Request
+from starlette.responses import FileResponse
 from starlette.staticfiles import StaticFiles
 from starlette.templating import Jinja2Templates
 
@@ -95,3 +96,13 @@ async def files(request: Request, folder="", error=""):
 
     context["files"] = object_list
     return templates.TemplateResponse("files.html", context=context)
+
+
+@app.get("/sw.js")
+def get_sw():
+    return FileResponse("static/sw.js", media_type="text/javascript")
+
+
+@app.get("/manifest.json")
+def get_sw():
+    return FileResponse("static/manifest.json", media_type="application/json")

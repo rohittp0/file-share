@@ -1,0 +1,41 @@
+{
+  "name": "Share",
+  "short_name": "Share",
+  "start_url": "/",
+  "theme_color": "#F5DEB3FF",
+  "background_color": "#FFFFFFFF",
+  "icons": [
+    {
+      "sizes": "2917x2918",
+      "src": "/static/logo.png",
+      "type": "image/png"
+    },
+    {
+      "sizes": "144x144",
+      "src": "/static/logo_sm.png",
+      "type": "image/png"
+    }
+  ],
+  "share_target": {
+    "action": "url to get data",
+    "enctype": "multipart/form-data",
+    "method": "POST",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url",
+      "files": [
+        {
+          "name": "media[]",
+          "accept": [
+            "audio/*",
+            "image/*",
+            "video/*"
+          ]
+        }
+      ]
+    }
+  },
+  "display": "standalone",
+  "scope": "/"
+}
