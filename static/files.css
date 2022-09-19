@@ -131,6 +131,8 @@ h3 {
     }
 
     .form-section {
+        position: sticky;
+        bottom: 0;
         translate: 0 calc(100% - 15px);
     }
 
