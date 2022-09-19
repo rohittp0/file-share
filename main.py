@@ -40,7 +40,7 @@ def get_safe_path(path) -> str:
     return path
 
 
-@app.post("/app/")
+@app.post("/app")
 async def app_share(request: Request):
     form = await request.form()
     file = form.get("media[]")
