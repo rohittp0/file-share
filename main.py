@@ -16,9 +16,12 @@ app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 upload_path = "static/uploads"
+share_path = "static/uploads/shared"
 icons_path = "static/icons"
 
 Path(upload_path).mkdir(parents=True, exist_ok=True)
+Path(share_path).mkdir(parents=True, exist_ok=True)
+
 manager = PreviewManager(f"{icons_path}/generated", create_folder=True)
 templates = Jinja2Templates(directory="templates")
 
@@ -35,6 +38,17 @@ def get_safe_path(path) -> str:
         path = path[:-1]
 
     return path
+
+
+@app.post("/app/")
+async def app_share(request: Request):
+    form = await request.form()
+    file = form.get("media[]")
+
+    with open(f"{share_path}/{random.randint(0, 1000)}{file.filename}", "wb+") as out:
+        shutil.copyfileobj(file.file, out)
+
+    return RedirectResponse(url=f"/?folder=shared", status_code=302)
 
 
 @app.post("/create-folder/")
@@ -68,11 +82,10 @@ async def files(request: Request, folder="", error=""):
     object_list = []
 
     folder = get_safe_path(folder)
+    previous = None
 
     if folder:
         previous = get_safe_path(f"/?folder={Path(folder).parent}")
-    else:
-        previous = None
 
     context = {"parent": folder, "request": request, "error": error, "previous": previous}
 

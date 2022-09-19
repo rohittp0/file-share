@@ -14,8 +14,11 @@
 <header>
     {% if previous %}
     <a href="{{ previous }}" class="button-link">🡄 Back</a>
-    {% endif %}
+    <h1 class="center">{{ parent }}</h1>
+    {% else %}
     <h1 class="center">Share</h1>
+    {% endif %}
+
 </header>
 
 <main class="content">

@@ -17,7 +17,7 @@
     }
   ],
   "share_target": {
-    "action": "url to get data",
+    "action": "/app",
     "enctype": "multipart/form-data",
     "method": "POST",
     "params": {
