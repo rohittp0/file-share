@@ -22,10 +22,22 @@ header {
 
 .content {
     display: flex;
-    justify-content: center;
+    justify-content: space-evenly;
     flex-wrap: wrap;
-    gap: 0.5rem;
     margin: 4rem 0.5rem;
+}
+
+.name-tag {
+    text-align: center;
+    text-decoration: none;
+    color: black;
+}
+
+.name-tag p {
+    max-width: 110px;
+    text-overflow: ellipsis;
+    margin: auto;
+    overflow: hidden;
 }
 
 .form-section {
@@ -86,7 +98,7 @@ h3 {
     text-decoration: wavy red underline;
 }
 
-.center{
+.center {
     position: absolute;
     left: 50%;
     top: 50%;

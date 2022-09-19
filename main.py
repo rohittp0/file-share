@@ -80,16 +80,18 @@ async def files(request: Request, folder="", error=""):
         return templates.TemplateResponse("files.html", context=context)
 
     for file in glob(f"{upload_path}/{folder}/*"):
+        name = Path(file).name
+
         if Path(file).is_dir():
             icon = f"{icons_path}/folder.webp"
-            file = f"/?folder={Path(file).name}"
+            file = f"/?folder={name}"
         else:
             try:
                 icon = manager.get_jpeg_preview(file, width=100, height=100)
             except UnsupportedMimeType:
                 icon = f"{icons_path}/unknown.webp"
 
-        object_list.append({"url": file, "icon": icon})
+        object_list.append({"url": file, "icon": icon, "name": name})
 
     context["files"] = object_list
     return templates.TemplateResponse("files.html", context=context)
