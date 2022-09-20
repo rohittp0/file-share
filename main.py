@@ -30,7 +30,7 @@ def get_safe_path(path) -> str:
     if not path:
         return ""
 
-    path = path.replace(".", "").strip()
+    path = path.replace(".", "").replace("\\", "/").replace("~", "").strip()
 
     if path.startswith("/"):
         path = path.replace("/", "", 1)
@@ -55,14 +55,13 @@ async def app_share(request: Request):
 async def create_folder(folder: str = Form(str), parent: str | None = Form(None)):
     folder = get_safe_path(folder)
     parent = get_safe_path(parent)
-    path = f"{upload_path}/{parent}/{folder}"
 
     try:
-        Path(path).mkdir(parents=True)
+        Path(f"{upload_path}/{parent}/{folder}").mkdir(parents=True)
     except FileExistsError:
         return RedirectResponse(url=f"/?folder={parent}&error={folder} already exists", status_code=302)
 
-    return RedirectResponse(url=f"/?folder={path}", status_code=302)
+    return RedirectResponse(url=f"/?folder={parent}/{folder}", status_code=302)
 
 
 @app.post("/upload-files/")
@@ -98,11 +97,11 @@ async def files(request: Request, folder="", error=""):
 
         if Path(file).is_dir():
             icon = f"{icons_path}/folder.webp"
-            file = f"/?folder={name}"
+            file = f"/?folder={get_safe_path(file.replace(upload_path, ''))}"
         else:
             try:
                 icon = manager.get_jpeg_preview(file, width=100, height=100)
-            except UnsupportedMimeType | UnavailablePreviewType:
+            except UnsupportedMimeType or UnavailablePreviewType:
                 icon = f"{icons_path}/unknown.webp"
 
         object_list.append({"url": file, "icon": icon, "name": name})
