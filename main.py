@@ -99,10 +99,13 @@ async def files(request: Request, folder="", error=""):
             icon = f"{icons_path}/folder.webp"
             file = f"/?folder={get_safe_path(file.replace(upload_path, ''))}"
         else:
+            icon = f"{icons_path}/unknown.webp"
             try:
                 icon = manager.get_jpeg_preview(file, width=100, height=100)
-            except UnsupportedMimeType or UnavailablePreviewType:
-                icon = f"{icons_path}/unknown.webp"
+            except UnsupportedMimeType:
+                pass
+            except UnavailablePreviewType:
+                pass
 
         object_list.append({"url": file, "icon": icon, "name": name})
 
