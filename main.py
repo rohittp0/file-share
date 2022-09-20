@@ -5,7 +5,7 @@ from pathlib import Path
 
 from fastapi import FastAPI, UploadFile, Form
 from fastapi.responses import RedirectResponse
-from preview_generator.exception import UnsupportedMimeType
+from preview_generator.exception import UnsupportedMimeType, UnavailablePreviewType
 from preview_generator.manager import PreviewManager
 from starlette.requests import Request
 from starlette.responses import FileResponse
@@ -102,7 +102,7 @@ async def files(request: Request, folder="", error=""):
         else:
             try:
                 icon = manager.get_jpeg_preview(file, width=100, height=100)
-            except UnsupportedMimeType:
+            except UnsupportedMimeType | UnavailablePreviewType:
                 icon = f"{icons_path}/unknown.webp"
 
         object_list.append({"url": file, "icon": icon, "name": name})
