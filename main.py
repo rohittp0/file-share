@@ -106,10 +106,10 @@ async def files(request: Request, folder="", error=""):
         name = Path(file).name
 
         if Path(file).is_dir():
-            icon = f"/{icons_path}/folder.webp"
-            file = "/" + get_safe_path(f"{folder}/{name}")
+            icon = f"{icons_path}/folder.webp"
+            file = get_safe_path(f"{folder}/{name}")
         else:
-            icon = f"/{icons_path}/unknown.webp"
+            icon = f"{icons_path}/unknown.webp"
             try:
                 icon = manager.get_jpeg_preview(file, width=100, height=100)
             except FileNotFoundError:
@@ -119,7 +119,7 @@ async def files(request: Request, folder="", error=""):
             except UnavailablePreviewType:
                 pass
 
-        object_list.append({"url": file, "icon": icon, "name": name})
+        object_list.append({"url": f"/{file}", "icon": f"/{icon}", "name": name})
 
     context["files"] = object_list
     return templates.TemplateResponse("files.html", context=context)
