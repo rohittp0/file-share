@@ -112,6 +112,8 @@ async def files(request: Request, folder="", error=""):
             icon = f"{icons_path}/unknown.webp"
             try:
                 icon = manager.get_jpeg_preview(file, width=100, height=100)
+            except FileNotFoundError:
+                icon = manager.get_jpeg_preview(file, width=100, height=100, force=True)
             except UnsupportedMimeType:
                 pass
             except UnavailablePreviewType:
