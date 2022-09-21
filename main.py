@@ -17,7 +17,7 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 
 upload_path = "static/uploads"
 share_path = "static/uploads/shared"
-icons_path = "/static/icons"
+icons_path = "static/icons"
 
 Path(upload_path).mkdir(parents=True, exist_ok=True)
 Path(share_path).mkdir(parents=True, exist_ok=True)
@@ -106,10 +106,10 @@ async def files(request: Request, folder="", error=""):
         name = Path(file).name
 
         if Path(file).is_dir():
-            icon = f"{icons_path}/folder.webp"
+            icon = f"/{icons_path}/folder.webp"
             file = "/" + get_safe_path(f"{folder}/{name}")
         else:
-            icon = f"{icons_path}/unknown.webp"
+            icon = f"/{icons_path}/unknown.webp"
             try:
                 icon = manager.get_jpeg_preview(file, width=100, height=100)
             except FileNotFoundError:
