@@ -17,7 +17,7 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 
 upload_path = "static/uploads"
 share_path = "static/uploads/shared"
-icons_path = "static/icons"
+icons_path = "/static/icons"
 
 Path(upload_path).mkdir(parents=True, exist_ok=True)
 Path(share_path).mkdir(parents=True, exist_ok=True)
@@ -40,6 +40,16 @@ def get_safe_path(path) -> str:
     return path
 
 
+@app.get("/sw.js")
+def get_sw():
+    return FileResponse("static/sw.js", media_type="text/javascript")
+
+
+@app.get("/manifest.json")
+def get_sw():
+    return FileResponse("static/manifest.json", media_type="application/json")
+
+
 @app.post("/app")
 async def app_share(request: Request):
     form = await request.form()
@@ -48,7 +58,7 @@ async def app_share(request: Request):
     with open(f"{share_path}/{random.randint(0, 1000)}{file.filename}", "wb+") as out:
         shutil.copyfileobj(file.file, out)
 
-    return RedirectResponse(url=f"/?folder=shared", status_code=302)
+    return RedirectResponse(url="/shared", status_code=302)
 
 
 @app.post("/create-folder/")
@@ -59,9 +69,9 @@ async def create_folder(folder: str = Form(str), parent: str | None = Form(None)
     try:
         Path(f"{upload_path}/{parent}/{folder}").mkdir(parents=True)
     except FileExistsError:
-        return RedirectResponse(url=f"/?folder={parent}&error={folder} already exists", status_code=302)
+        return RedirectResponse(url=f"/{parent}&error={folder} already exists", status_code=302)
 
-    return RedirectResponse(url=f"/?folder={parent}/{folder}", status_code=302)
+    return RedirectResponse(url=f"/{parent}/{folder}", status_code=302)
 
 
 @app.post("/upload-files/")
@@ -73,10 +83,10 @@ async def create_upload_files(uploaded_files: list[UploadFile], parent: str | No
         with open(f"{path}/{random.randint(0, 1000)}{file.filename}", "wb+") as out:
             shutil.copyfileobj(file.file, out)
 
-    return RedirectResponse(url=f"/?folder={parent}", status_code=302)
+    return RedirectResponse(url=f"/{parent}", status_code=302)
 
 
-@app.get("/")
+@app.get("/{folder:path}")
 async def files(request: Request, folder="", error=""):
     object_list = []
 
@@ -84,7 +94,7 @@ async def files(request: Request, folder="", error=""):
     previous = None
 
     if folder:
-        previous = get_safe_path(f"/?folder={Path(folder).parent}")
+        previous = "/" + get_safe_path(f"/{Path(folder).parent}")
 
     context = {"parent": folder, "request": request, "error": error, "previous": previous}
 
@@ -97,7 +107,7 @@ async def files(request: Request, folder="", error=""):
 
         if Path(file).is_dir():
             icon = f"{icons_path}/folder.webp"
-            file = f"/?folder={get_safe_path(file.replace(upload_path, ''))}"
+            file = "/" + get_safe_path(f"{folder}/{name}")
         else:
             icon = f"{icons_path}/unknown.webp"
             try:
@@ -111,13 +121,3 @@ async def files(request: Request, folder="", error=""):
 
     context["files"] = object_list
     return templates.TemplateResponse("files.html", context=context)
-
-
-@app.get("/sw.js")
-def get_sw():
-    return FileResponse("static/sw.js", media_type="text/javascript")
-
-
-@app.get("/manifest.json")
-def get_sw():
-    return FileResponse("static/manifest.json", media_type="application/json")

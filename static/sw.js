@@ -1,4 +1,4 @@
-const urlsToCache = ["/static/index.js", "/static/files.css", "static/icons/folder.webp", "static/icons/unknown.webp"]
+const urlsToCache = ["/", "/static/index.js", "/static/files.css", "static/icons/folder.webp", "static/icons/unknown.webp"]
 const CACHE_NAME = "v1";
 
 const putInCache = async (request, response) => {
@@ -15,19 +15,17 @@ const networkFirst = async (request) => {
         return response;
     }
 
-    return new Response("Network error happened", {
-        status: 408,
-        headers: {"Content-Type": "text/plain"},
-    });
+    return caches.match("/");
 };
 
 const cacheFirst = async (request) => {
-  const cacheResponse = await caches.match(CACHE_NAME);
+    const network = fetch(request).then((res) => (putInCache(request, res.clone()), res)).catch(() => undefined);
+    const cacheResponse = await caches.match(request);
 
-  if(cacheResponse)
-      return cacheResponse;
+    if (cacheResponse)
+        return cacheResponse;
 
-  return fetch(request);
+    return network;
 };
 
 self.addEventListener("install", (event) => {
@@ -50,13 +48,13 @@ self.addEventListener("fetch", (event) => {
     event.respondWith(
         (async () => {
             // First, try to use the navigation preload response if it's supported.
-            const preloadResponse = await event.preloadResponse;
+            const preloadResponse = await event.preloadResponse.catch(() => undefined);
 
             if (preloadResponse) {
                 return preloadResponse;
             }
 
-            if(["script" , "style", "image"].indexOf(event.request.destination) !== -1)
+            if (["script", "style", "image"].indexOf(event.request.destination) !== -1)
                 return cacheFirst(event.request)
 
             // Always try the network first.
