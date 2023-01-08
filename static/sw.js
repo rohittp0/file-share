@@ -10,16 +10,21 @@ const networkFirst = async (request) => {
     const response = await fetch(request).catch(() => caches.match(request));
 
     if (response) {
-        putInCache(request, response.clone());
+        putInCache(request, response.clone()).then();
 
         return response;
     }
 
-    return caches.match("/");
+    return caches.match(request.url);
 };
 
 const cacheFirst = async (request) => {
-    const network = fetch(request).then((res) => (putInCache(request, res.clone()), res)).catch(() => undefined);
+    const network = fetch(request)
+        .then((res) => {
+            putInCache(request, res.clone());
+            return res;
+        })
+        .catch(() => undefined);
     const cacheResponse = await caches.match(request);
 
     if (cacheResponse)
@@ -36,7 +41,8 @@ self.addEventListener("install", (event) => {
 });
 
 self.addEventListener("activate", (event) => {
-    event.waitUntil(("navigationPreload" in self.registration) && self.registration.navigationPreload.enable());
+    if ("navigationPreload" in self.registration)
+        event.waitUntil(self.registration.navigationPreload.enable());
 
     // Tell the active service worker to take control of the page immediately.
     return self.clients.claim();

@@ -3,6 +3,7 @@ import shutil
 from glob import glob
 from pathlib import Path
 
+import shortuuid
 from fastapi import FastAPI, UploadFile, Form
 from fastapi.responses import RedirectResponse
 from preview_generator.exception import UnsupportedMimeType, UnavailablePreviewType
@@ -11,6 +12,7 @@ from starlette.requests import Request
 from starlette.responses import FileResponse
 from starlette.staticfiles import StaticFiles
 from starlette.templating import Jinja2Templates
+from wand.exceptions import PolicyError
 
 app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
@@ -55,7 +57,7 @@ async def app_share(request: Request):
     form = await request.form()
     file = form.get("media[]")
 
-    with open(f"{share_path}/{random.randint(0, 1000)}{file.filename}", "wb+") as out:
+    with open(f"{share_path}/{shortuuid.ShortUUID().random(length=8)}{file.filename}", "wb+") as out:
         shutil.copyfileobj(file.file, out)
 
     return RedirectResponse(url="/shared", status_code=302)
@@ -110,6 +112,7 @@ async def files(request: Request, folder="", error=""):
             file = get_safe_path(f"{folder}/{name}")
         else:
             icon = f"{icons_path}/unknown.webp"
+
             try:
                 icon = manager.get_jpeg_preview(file, width=100, height=100)
             except FileNotFoundError:
@@ -118,8 +121,11 @@ async def files(request: Request, folder="", error=""):
                 pass
             except UnavailablePreviewType:
                 pass
+            except PolicyError:
+                pass
 
-        object_list.append({"url": f"/{file}", "icon": f"/{icon}", "name": name})
+        object_list.append({"url": f"/{file}", "icon": f"/{icon}", "name": name[8:] or name})
 
+    object_list.sort(key=lambda x: x["name"])
     context["files"] = object_list
     return templates.TemplateResponse("files.html", context=context)
