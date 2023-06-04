@@ -1,4 +1,3 @@
-import random
 import shutil
 from glob import glob
 from pathlib import Path
@@ -82,7 +81,7 @@ async def create_upload_files(uploaded_files: list[UploadFile], parent: str | No
     path = f"{upload_path}/{parent}"
 
     for file in uploaded_files:
-        with open(f"{path}/{random.randint(0, 1000)}{file.filename}", "wb+") as out:
+        with open(f"{path}/{shortuuid.ShortUUID().random(length=8)}{file.filename}", "wb+") as out:
             shutil.copyfileobj(file.file, out)
 
     return RedirectResponse(url=f"/{parent}", status_code=302)
